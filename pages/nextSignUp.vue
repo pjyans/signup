@@ -33,7 +33,11 @@
       <v-btn type="button" class="btn_type btn_primary" @click="goBack()"
         >이전</v-btn
       >
-      <v-btn type="button" class="btn_type btn_primary" @click="goNext()"
+      <v-btn
+        type="button"
+        class="btn_type btn_primary"
+        :disabled="doDisabled"
+        @click="goNext()"
         >다음</v-btn
       >
     </div>
@@ -42,10 +46,12 @@
 
 <script>
 import { mapState } from 'vuex'
-import AddrSearch from '~/components/addrSearch.vue'
+import addrSearch from '../components/addrSearch.vue'
+import common from '~/mixins/common.js'
 export default {
   name: 'NextSignUp',
-  components: { AddrSearch },
+  components: { addrSearch },
+  mixins: [common],
   data() {
     return {
       nextSignUp: {
@@ -53,6 +59,7 @@ export default {
         phoneNo: '',
         addrDetail: '',
       },
+      doDisabled: true,
       addrDetailRule: [(v) => !!v || '상세주소를 입력해주세요'],
       nameRule: [
         (v) => !!v || '이름을 작성해주세요.',
@@ -84,7 +91,35 @@ export default {
       stateNextSignUp: 'nextSignUp',
     }),
   },
+  watch: {
+    nextSignUp: {
+      handler() {
+        this.validate()
+      },
+      deep: true,
+    },
+  },
+  async mounted() {
+    this.nextSignUp = this.deepCopy(this.stateNextSignUp)
+    await this.$nextTick()
+    this.validate()
+  },
   methods: {
+    validate() {
+      if (
+        this.$refs.name.validate() &&
+        this.$refs.phoneNo.validate() &&
+        this.$refs.addrDetail.validate()
+      ) {
+        this.doDisabled = false
+      } else {
+        this.doDisabled = true
+      }
+      this.nameBlankCheck()
+    },
+    nameBlankCheck() {
+      this.nextSignUp.name = this.nextSignUp.name.replace(/(\s*)/g, '')
+    },
     goNext() {
       this.$store.commit('signup/setNextSignUp', this.nextSignUp)
       this.$router.push('registerCard')

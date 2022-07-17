@@ -31,7 +31,11 @@
         type="password"
       />
     </div>
-    <v-btn type="button" class="btn_type btn_primary" @click="goNext()"
+    <v-btn
+      type="button"
+      class="btn_type btn_primary"
+      :disabled="doDisabled"
+      @click="goNext()"
       >다음</v-btn
     >
   </div>
@@ -39,8 +43,10 @@
 
 <script>
 import { mapState } from 'vuex'
+import common from '~/mixins/common.js'
 export default {
   name: 'IndexPage',
+  mixins: [common],
   data() {
     return {
       signUp: {
@@ -48,6 +54,7 @@ export default {
         password: '',
         confirmPassword: '',
       },
+      doDisabled: true,
       emailRule: [
         (v) => !!v || '이메일을 작성해주세요.',
         (v) => {
@@ -63,6 +70,7 @@ export default {
           const replaceValue = v.replace(/(\s*)/g, '')
           return replaceValue.length >= 8 || '8자리 이상 입력해주세요.'
         },
+        (v) => v === this.signUp.password || '비밀번호가 일치하지 않습니다.',
         (v) => {
           const replaceValue = v.replace(/(\s*)/g, '')
           const pattern =
@@ -78,6 +86,7 @@ export default {
           const replaceValue = v.replace(/(\s*)/g, '')
           return replaceValue.length >= 8 || '8자리 이상 입력해주세요.'
         },
+        (v) => v === this.signUp.password || '비밀번호가 일치하지 않습니다.',
         (v) => {
           const replaceValue = v.replace(/(\s*)/g, '')
           const pattern =
@@ -94,7 +103,36 @@ export default {
       stateSignUp: 'signUp',
     }),
   },
+  watch: {
+    signUp: {
+      handler() {
+        this.validate()
+      },
+      deep: true,
+    },
+  },
+  async mounted() {
+    this.signUp = this.deepCopy(this.stateSignUp)
+    await this.$nextTick()
+    this.validate()
+  },
   methods: {
+    validate() {
+      if (
+        this.$refs.email.validate() &&
+        this.$refs.password.validate() &&
+        this.$refs.confirmPassword.validate()
+      ) {
+        this.validPassword()
+      } else {
+        this.doDisabled = true
+      }
+    },
+    validPassword() {
+      if (this.signUp.password === this.signUp.confirmPassword) {
+        this.doDisabled = false
+      }
+    },
     goNext() {
       this.$store.commit('signup/setSignUp', this.signUp)
       this.$router.push('nextSignUp')
