@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="nextSignUp.name">
+    <div>
       <h1>{{ nextSignUp.name + '님 회원가입이 완료되었습니다' }}</h1>
     </div>
     <div>
