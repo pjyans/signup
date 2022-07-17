@@ -1,87 +1,103 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card class="logo py-4 d-flex justify-center">
-        <NuxtLogo />
-        <VuetifyLogo />
-      </v-card>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>
-            Vuetify is a progressive Material Design component framework for
-            Vue.js. It was designed to empower developers to create amazing
-            applications.
-          </p>
-          <p>
-            For more information on Vuetify, check out the
-            <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              documentation </a
-            >.
-          </p>
-          <p>
-            If you have questions, please join the official
-            <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord </a
-            >.
-          </p>
-          <p>
-            Find a bug? Report it on the github
-            <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board </a
-            >.
-          </p>
-          <p>
-            Thank you for developing with Vuetify and I look forward to bringing
-            more exciting features in the future.
-          </p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3" />
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br />
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" nuxt to="/inspire"> Continue </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+  <div>
+    <div>
+      <span>
+        <v-text-field
+          ref="email"
+          v-model="signUp.email"
+          class="pl-3 pr-3"
+          :rules="emailRule"
+          required
+          label="email"
+          type="email"
+        />
+      </span>
+      <v-text-field
+        ref="password"
+        v-model="signUp.password"
+        class="pl-3 pr-3"
+        :rules="passwordRule"
+        required
+        label="password"
+        type="password"
+      />
+      <v-text-field
+        ref="confirmPassword"
+        v-model="signUp.confirmPassword"
+        class="pl-3 pr-3"
+        :rules="passwordConfirmRule"
+        required
+        label="confirmPassword"
+        type="password"
+      />
+    </div>
+    <v-btn type="button" class="btn_type btn_primary" @click="goNext()"
+      >다음</v-btn
+    >
+  </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'IndexPage',
+  data() {
+    return {
+      signUp: {
+        email: '',
+        password: '',
+        confirmPassword: '',
+      },
+      emailRule: [
+        (v) => !!v || '이메일을 작성해주세요.',
+        (v) => {
+          const replaceValue = v.replace(/(\s*)/g, '')
+          const pattern =
+            /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/
+          return pattern.test(replaceValue) || '이메일 형식으로 입력해주세요'
+        },
+      ],
+      passwordRule: [
+        (v) => !!v || '비밀번호를 입력해주세요',
+        (v) => {
+          const replaceValue = v.replace(/(\s*)/g, '')
+          return replaceValue.length >= 8 || '8자리 이상 입력해주세요.'
+        },
+        (v) => {
+          const replaceValue = v.replace(/(\s*)/g, '')
+          const pattern =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}/
+          return (
+            pattern.test(replaceValue) || '비밀번호 형식에 맞게 입력해주세요'
+          )
+        },
+      ],
+      passwordConfirmRule: [
+        (v) => !!v || '비밀번호를 입력해주세요',
+        (v) => {
+          const replaceValue = v.replace(/(\s*)/g, '')
+          return replaceValue.length >= 8 || '8자리 이상 입력해주세요.'
+        },
+        (v) => {
+          const replaceValue = v.replace(/(\s*)/g, '')
+          const pattern =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}/
+          return (
+            pattern.test(replaceValue) || '비밀번호 형식에 맞게 입력해주세요'
+          )
+        },
+      ],
+    }
+  },
+  computed: {
+    ...mapState('signup', {
+      stateSignUp: 'signUp',
+    }),
+  },
+  methods: {
+    goNext() {
+      this.$store.commit('signup/setSignUp', this.signUp)
+    },
+  },
 }
 </script>
