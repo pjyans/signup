@@ -97,6 +97,7 @@ export default {
   methods: {
     goNext() {
       this.$store.commit('signup/setSignUp', this.signUp)
+      this.$router.push('nextSignUp')
     },
   },
 }
